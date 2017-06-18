@@ -23,12 +23,14 @@ const double Lf = 2.67;
 * N = 5 will not work.
 * N = 20 will not work either.
 * N = 15 works as well as N = 10. 
-* dt = 0.1s is chosen, because it is easier to deal with the 100ms latency. 
+* dt = 0.1s was chosen, because it is easier to deal with the 100ms latency. 
+* However, some computer may be a little slow to run the solver.
+* So choose dt = 0.2s. Guess there are extra latency due to the computing time.
 ************************************************************************************/
 
 //Set the timestep length and duration
 size_t N = 10;
-double dt = 0.1;
+double dt = 0.2;
 
 //Set the targets for cte, epsi, and speed 
 double ref_cte = 0;
@@ -71,18 +73,18 @@ class FG_eval {
     // Note the values before each equations are weights.
     fg[0] = 0;
     for ( int t = 0; t <N; t++) {
-       fg[0] += 1000*CppAD::pow(vars[cte_start + t] - ref_cte, 2);
-       fg[0] += 1000*CppAD::pow(vars[epsi_start + t] - ref_epsi, 2);
-       fg[0] += 1 * CppAD::pow(vars[v_start + t] - ref_v, 2);
+       fg[0] += 2000*CppAD::pow(vars[cte_start + t] - ref_cte, 2);
+       fg[0] += 2000*CppAD::pow(vars[epsi_start + t] - ref_epsi, 2);
+       fg[0] += 100 * CppAD::pow(vars[v_start + t] - ref_v, 2);
     }
 
     for ( int t = 0; t < N-1; t++ ) {
-        fg[0] += 100 * CppAD::pow(vars[delta_start + t], 2);
+        fg[0] += 10 * CppAD::pow(vars[delta_start + t], 2);
         fg[0] += 10 * CppAD::pow(vars[a_start + t], 2);
     }
 
     for (int t = 0; t < N-2; t++) {
-        fg[0] += 2000 * CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
+        fg[0] += 1000 * CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
         fg[0] += 10 *CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);
     }
 
